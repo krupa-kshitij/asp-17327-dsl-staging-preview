@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Assent — Unified Catalog Prototype (Reassociate + Multi-Org)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-900: #0b3a44;
+    --teal-800: #114a57;
+    --teal-700: #155e6f;
+    --teal-600: #1d7a8c;
+    --teal-500: #1f8a9a;
+    --teal-400: #2aa1ad;
+    --teal-300: #4cb6c0;
+    --primary: #0b6b7a;
+    --primary-hover: #095663;
+    --primary-soft: #e6f3f5;
+
+    --ink-900: #0f1a1f;
+    --ink-800: #1a2a31;
+    --ink-700: #2c3e47;
+    --ink-600: #4a5d66;
+    --ink-500: #6b7a83;
+    --ink-400: #94a2ab;
+    --ink-300: #c3ccd2;
+    --ink-200: #e1e6e9;
+    --ink-100: #f1f4f5;
+    --ink-50:  #f7f9fa;
+    --white: #ffffff;
+
+    --surface: #ffffff;
+    --canvas: #f4f6f7;
+    --border: #e1e6e9;
+    --border-strong: #c3ccd2;
+
+    --success-bg: #e6f4ec;
+    --success-fg: #1f7a4c;
+    --warning-bg: #fef4e6;
+    --warning-fg: #9a6510;
+    --danger-bg: #fce8e8;
+    --danger-fg: #9a1e1e;
+    --info-bg: #e8f1fb;
+    --info-fg: #1d5fa8;
+    --accent-purple: #6c4cb8;
+    --accent-amber: #c08515;
+
+    --radius-sm: 4px;
+    --radius: 6px;
+    --radius-lg: 10px;
+
+    --shadow-sm: 0 1px 2px rgba(15,26,31,0.06);
+    --shadow: 0 4px 12px rgba(15,26,31,0.08);
+    --shadow-lg: 0 16px 48px rgba(15,26,31,0.18);
+
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font);
+    color: var(--ink-800);
+    background: var(--canvas);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 224px;
+    background: linear-gradient(180deg, #0e4d5a 0%, #1c6878 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+  }
+  .sidebar-header {
+    padding: 22px 20px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .logo { font-weight: 700; font-size: 22px; letter-spacing: -0.5px; color: #fff; }
+  .collapse-btn {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.15);
+    border: none; color: #fff; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .nav { padding: 14px 10px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 6px;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none; font-size: 14px; cursor: pointer;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-item.active { background: rgba(0,0,0,0.25); color: #fff; font-weight: 500; }
+  .nav-item .badge {
+    margin-left: auto;
+    background: #e85d3a; color: #fff;
+    font-size: 11px; padding: 2px 7px;
+    border-radius: 999px; font-weight: 600;
+  }
+  .nav-sub { padding-left: 32px; font-size: 13px; color: rgba(255,255,255,0.75); }
+  .sidebar-foot { padding: 16px; }
+  .help-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%; background: var(--primary);
+    color: #fff; border: none; cursor: pointer;
+    font-size: 18px; display: grid; place-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+
+  /* Topbar */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 28px; gap: 14px;
+  }
+  .lang-select {
+    border: 1px solid var(--border);
+    padding: 6px 10px; border-radius: var(--radius);
+    font-size: 13px; background: #fff; color: var(--ink-700); cursor: pointer;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%; background: var(--accent-purple);
+    color: #fff; display: grid; place-items: center;
+    font-size: 13px; font-weight: 600;
+  }
+
+  /* Main */
+  .main { flex: 1; background: var(--canvas); display: flex; flex-direction: column; min-width: 0; }
+  .content { padding: 24px 28px 60px; flex: 1; }
+
+  /* Demo banner */
+  .demo-banner {
+    background: linear-gradient(90deg, #fef9e8 0%, #fff5d4 100%);
+    border: 1px solid #e6cf6e;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    color: #5a4410;
+  }
+  .demo-banner-tag {
+    background: var(--accent-amber);
+    color: #fff;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .demo-actions { margin-left: auto; display: flex; gap: 8px; }
+  .demo-btn {
+    background: #fff;
+    border: 1px solid #d5b948;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    color: #5a4410;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font);
+  }
+  .demo-btn:hover { background: #fff8e0; }
+
+  /* Page header */
+  .page-head {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px; gap: 16px;
+  }
+  .page-title {
+    font-size: 26px; font-weight: 700;
+    color: var(--ink-900); letter-spacing: -0.4px;
+  }
+  .page-sub { color: var(--ink-500); margin-top: 4px; font-size: 14px; }
+  .page-head-actions { display: flex; gap: 10px; flex-shrink: 0; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: var(--radius);
+    font-weight: 600; font-size: 13.5px; cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    font-family: var(--font);
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-secondary { background: #fff; color: var(--primary); border-color: var(--primary); }
+  .btn-secondary:hover { background: var(--primary-soft); }
+  .btn-ghost { background: transparent; color: var(--ink-700); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--ink-50); }
+  .btn-danger { background: #b53737; color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 12.5px; }
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+  /* Filter bar */
+  .filter-bar {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 14px;
+  }
+  .filter-bar .label { color: var(--ink-600); font-size: 13px; font-weight: 500; }
+  .search-input { position: relative; flex: 0 0 320px; }
+  .search-input input {
+    width: 100%; padding: 8px 12px 8px 34px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 13px; font-family: var(--font); background: #fff;
+  }
+  .search-input input:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+  .search-input .icon {
+    position: absolute; left: 11px; top: 50%;
+    transform: translateY(-50%); color: var(--ink-400);
+  }
+  .filter-chip {
+    color: var(--primary); font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .dropdown-chip {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--ink-800); font-weight: 500;
+    font-size: 13px; cursor: pointer;
+  }
+
+  /* Org context switcher */
+  .org-switcher {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 8px;
+    border-left: 1px solid var(--border); padding-left: 16px;
+  }
+  .org-switcher-label { font-size: 12px; color: var(--ink-500); }
+  .org-switcher-select {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    background: var(--primary-soft);
+    border: 1px solid #c2dfe3;
+    border-radius: var(--radius);
+    font-size: 13px; font-weight: 600;
+    color: var(--primary); cursor: pointer;
+  }
+  .org-switcher-select:hover { background: #d5ebee; }
+
+  /* Table card */
+  .table-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .table-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 12px;
+  }
+  .toolbar-left { display: flex; align-items: center; gap: 12px; }
+  .toolbar-title { font-weight: 600; font-size: 15px; color: var(--ink-900); }
+  .toolbar-count { color: var(--ink-500); font-weight: 400; }
+  .help-i {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--ink-100); color: var(--ink-500);
+    font-size: 11px; display: inline-grid; place-items: center; cursor: help;
+  }
+  .kebab {
+    background: transparent; border: none; cursor: pointer;
+    padding: 4px; color: var(--ink-500); border-radius: 4px;
+  }
+  .kebab:hover { background: var(--ink-50); color: var(--ink-800); }
+
+  /* Selection bar */
+  .selection-bar {
+    background: var(--primary-soft);
+    border-bottom: 1px solid #c8e0e4;
+    padding: 10px 18px;
+    display: flex; align-items: center; gap: 14px;
+    color: var(--ink-800); font-size: 13px;
+  }
+  .selection-bar .count { font-weight: 600; color: var(--primary); }
+  .selection-bar .divider { color: var(--ink-300); }
+  .selection-action {
+    background: transparent; border: none;
+    color: var(--primary); font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 4px;
+    font-size: 13px; font-family: var(--font);
+    position: relative;
+  }
+  .selection-action:hover { background: rgba(11,107,122,0.08); }
+  .selection-action .new-pill {
+    margin-left: 4px;
+    background: var(--primary);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .selection-bar .spacer { margin-left: auto; }
+  .clear-link {
+    color: var(--ink-600); background: none; border: none;
+    cursor: pointer; font-size: 13px; font-family: var(--font);
+  }
+  .clear-link:hover { color: var(--ink-900); text-decoration: underline; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; padding: 12px 16px;
+    background: var(--ink-50); border-bottom: 1px solid var(--border);
+    font-size: 12.5px; font-weight: 600; color: var(--ink-700);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    font-size: 13.5px; color: var(--ink-800); vertical-align: middle;
+  }
+  tbody tr:hover { background: #fafbfc; }
+  tbody tr.selected { background: #f0f8f9; }
+  tbody tr.selected:hover { background: #e9f4f5; }
+  .product-id {
+    color: var(--primary); font-weight: 600;
+    text-decoration: none; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .product-id:hover { text-decoration: underline; }
+  .product-sub { color: var(--ink-500); font-size: 12.5px; margin-top: 2px; }
+
+  /* Shared product indicator (multi-org badge) */
+  .shared-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #f0e9fb;
+    color: var(--accent-purple);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: help;
+  }
+  .shared-badge svg { width: 11px; height: 11px; }
+
+  /* Org pills column */
+  .org-pills {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    max-width: 220px;
+  }
+  .org-pill {
+    background: var(--ink-100);
+    color: var(--ink-700);
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .org-pill.primary {
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .org-pill.primary::before {
+    content: '★';
+    font-size: 9px;
+  }
+
+  /* Pills */
+  .pill {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 12px; background: var(--ink-100);
+    color: var(--ink-700); font-weight: 500; white-space: nowrap;
+  }
+  .pill-counter {
+    background: var(--ink-100); color: var(--ink-600);
+    font-weight: 600; margin-left: 4px;
+  }
+  .open-reqs { display: block; color: var(--ink-500); font-size: 12.5px; margin-top: 4px; }
+
+  /* Checkbox */
+  .cb {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 3px; display: inline-grid; place-items: center;
+    cursor: pointer; background: #fff; flex-shrink: 0;
+  }
+  .cb.checked { background: var(--primary); border-color: var(--primary); }
+  .cb.checked::after {
+    content: ''; width: 4px; height: 8px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg); margin-top: -2px;
+  }
+  .cb.indeterminate { background: var(--primary); border-color: var(--primary); }
+  .cb.indeterminate::after { content: ''; width: 8px; height: 2px; background: #fff; }
+
+  /* Action menu */
+  .actions-cell { width: 56px; text-align: center; }
+  .action-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border); background: #fff;
+    border-radius: var(--radius); cursor: pointer;
+    color: var(--ink-700); display: inline-grid; place-items: center;
+  }
+  .action-btn:hover { background: var(--ink-50); border-color: var(--border-strong); }
+
+  .menu {
+    position: absolute; z-index: 100;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    min-width: 260px; padding: 6px 0;
+  }
+  .menu-item {
+    padding: 9px 14px; cursor: pointer;
+    font-size: 13.5px; color: var(--ink-800);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .menu-item:hover { background: var(--ink-50); }
+  .menu-item.new { color: var(--primary); font-weight: 600; }
+  .menu-item.new .new-tag {
+    margin-left: auto; font-size: 9px;
+    background: var(--primary); color: #fff;
+    padding: 2px 6px; border-radius: 3px;
+    font-weight: 700; letter-spacing: 0.4px;
+  }
+  .menu-item.purple { color: var(--accent-purple); font-weight: 600; }
+  .menu-item.purple .new-tag {
+    margin-left: auto; font-size: 9px;
+    background: var(--accent-purple); color: #fff;
+    padding: 2px 6px; border-radius: 3px;
+    font-weight: 700; letter-spacing: 0.4px;
+  }
+  .menu-divider { height: 1px; background: var(--border); margin: 4px 0; }
+  .menu-section-label {
+    padding: 6px 14px 4px;
+    font-size: 10.5px;
+    color: var(--ink-500);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+  }
+
+  .pagination {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px; font-size: 13px; color: var(--ink-600);
+    border-top: 1px solid var(--border); background: #fff;
+  }
+  .pager-controls { display: flex; gap: 2px; }
+  .pager-btn {
+    width: 28px; height: 28px; border: none;
+    background: transparent; cursor: pointer;
+    border-radius: 4px; color: var(--ink-700);
+  }
+  .pager-btn:hover { background: var(--ink-50); }
+
+  /* Overlay / Modal */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,26,31,0.45);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; backdrop-filter: blur(2px); padding: 32px;
+  }
+  .overlay.show { display: flex; animation: fadeIn 0.18s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: #fff; border-radius: var(--radius-lg);
+    width: 100%; max-width: 720px;
+    max-height: calc(100vh - 64px);
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.22s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal.wide { max-width: 880px; }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .modal-head {
+    padding: 22px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between;
+    align-items: flex-start; gap: 16px;
+  }
+  .modal-title-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .modal-title {
+    font-size: 20px; font-weight: 700;
+    color: var(--ink-900); letter-spacing: -0.2px;
+  }
+  .flow-tag {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .flow-tag.move { background: var(--primary-soft); color: var(--primary); }
+  .flow-tag.link { background: #f0e9fb; color: var(--accent-purple); }
+  .modal-sub { color: var(--ink-500); font-size: 13.5px; margin-top: 4px; }
+  .modal-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-500); font-size: 22px; line-height: 1;
+    padding: 4px 8px; border-radius: 4px;
+  }
+  .modal-close:hover { background: var(--ink-50); color: var(--ink-900); }
+
+  .modal-body { padding: 22px 28px; overflow-y: auto; flex: 1; }
+  .modal-foot {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; background: var(--ink-50);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+  .foot-left { color: var(--ink-500); font-size: 12.5px; }
+  .foot-right { display: flex; gap: 10px; }
+
+  /* Stepper */
+  .stepper {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 22px;
+  }
+  .step {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--ink-400); font-size: 13px; font-weight: 500;
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--ink-100); color: var(--ink-500);
+    display: grid; place-items: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .step.active { color: var(--ink-900); }
+  .step.active .step-num { background: var(--primary); color: #fff; }
+  .step.active.purple .step-num { background: var(--accent-purple); }
+  .step.done .step-num { background: var(--success-fg); color: #fff; }
+  .step.done { color: var(--ink-700); }
+  .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 14px; }
+  .step-line.done { background: var(--success-fg); }
+
+  /* Form */
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--ink-800); margin-bottom: 6px;
+  }
+  .field .hint { font-size: 12.5px; color: var(--ink-500); margin-bottom: 8px; }
+  .field .required { color: #b53737; }
+  select, .field input[type="text"], .field textarea {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: 14px; font-family: var(--font);
+    background: #fff; color: var(--ink-900);
+  }
+  select:focus, .field input:focus, .field textarea:focus {
+    outline: 2px solid var(--primary-soft); border-color: var(--primary);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* Org cards */
+  .org-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: all 0.12s;
+    margin-bottom: 8px; background: #fff;
+  }
+  .org-card:hover { border-color: var(--primary); background: var(--primary-soft); }
+  .org-card.selected {
+    border-color: var(--primary); background: var(--primary-soft);
+    box-shadow: inset 0 0 0 1px var(--primary);
+  }
+  .org-card.selected.purple {
+    border-color: var(--accent-purple); background: #f3eafb;
+    box-shadow: inset 0 0 0 1px var(--accent-purple);
+  }
+  .org-card.disabled { opacity: 0.5; cursor: not-allowed; background: var(--ink-50); }
+  .org-card.linked {
+    border-color: var(--accent-purple);
+    background: #faf6ff;
+  }
+  .org-avatar {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1d7a8c, #2aa1ad);
+    color: #fff; display: grid; place-items: center;
+    font-weight: 600; font-size: 14px; flex-shrink: 0;
+  }
+  .org-avatar.b { background: linear-gradient(135deg, #6c4cb8, #8a6cd6); }
+  .org-avatar.c { background: linear-gradient(135deg, #e85d3a, #f08566); }
+  .org-avatar.d { background: linear-gradient(135deg, #1f7a4c, #2da66b); }
+  .org-info { flex: 1; }
+  .org-name { font-weight: 600; color: var(--ink-900); font-size: 14px; }
+  .org-meta { color: var(--ink-500); font-size: 12.5px; margin-top: 2px; }
+  .org-current-tag {
+    background: var(--ink-100); color: var(--ink-600);
+    padding: 3px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+  }
+  .org-current-tag.purple { background: #f0e9fb; color: var(--accent-purple); }
+  .radio-circle {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%; flex-shrink: 0; position: relative;
+  }
+  .org-card.selected .radio-circle { border-color: var(--primary); }
+  .org-card.selected .radio-circle::after {
+    content: ''; position: absolute; inset: 3px;
+    border-radius: 50%; background: var(--primary);
+  }
+  .org-card.selected.purple .radio-circle { border-color: var(--accent-purple); }
+  .org-card.selected.purple .radio-circle::after { background: var(--accent-purple); }
+
+  /* Multi-select checkbox in org card */
+  .cb-large {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border-strong);
+    border-radius: 4px;
+    display: inline-grid; place-items: center;
+    cursor: pointer; background: #fff; flex-shrink: 0;
+  }
+  .cb-large.checked {
+    background: var(--accent-purple); border-color: var(--accent-purple);
+  }
+  .cb-large.checked::after {
+    content: ''; width: 5px; height: 10px;
+    border: solid #fff; border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg); margin-top: -2px;
+  }
+  .cb-large.checked.locked {
+    background: var(--ink-400); border-color: var(--ink-400);
+  }
+  .org-lock-note {
+    font-size: 11px; color: var(--ink-500);
+    font-style: italic; margin-top: 2px;
+  }
+
+  /* Summary tiles */
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 12px; margin: 16px 0 20px;
+  }
+  .summary-tile {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px; background: #fff;
+  }
+  .summary-tile .label {
+    font-size: 12px; color: var(--ink-500);
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+  }
+  .summary-tile .value {
+    font-size: 24px; font-weight: 700;
+    color: var(--ink-900); margin-top: 6px; letter-spacing: -0.5px;
+  }
+  .summary-tile .sub { font-size: 12.5px; color: var(--ink-600); margin-top: 4px; }
+  .summary-tile.good { border-left: 3px solid var(--success-fg); }
+  .summary-tile.move { border-left: 3px solid var(--primary); }
+  .summary-tile.link { border-left: 3px solid var(--accent-purple); }
+
+  .preserved-list {
+    background: var(--success-bg); border: 1px solid #c4e3d2;
+    border-radius: var(--radius); padding: 14px 16px;
+    margin: 12px 0 8px;
+  }
+  .preserved-list h4 {
+    color: var(--success-fg); font-size: 13px; font-weight: 700;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .preserved-list ul { list-style: none; color: var(--ink-800); font-size: 13px; padding-left: 0; }
+  .preserved-list li { padding: 3px 0 3px 22px; position: relative; }
+  .preserved-list li::before {
+    content: '✓'; position: absolute; left: 0;
+    color: var(--success-fg); font-weight: 700;
+  }
+
+  .alert {
+    border-radius: var(--radius); padding: 12px 14px;
+    display: flex; gap: 12px; font-size: 13px;
+    margin: 10px 0; align-items: flex-start;
+  }
+  .alert-warn { background: var(--warning-bg); border: 1px solid #f0d5a3; color: var(--warning-fg); }
+  .alert-info { background: var(--info-bg); border: 1px solid #bcd6f0; color: var(--info-fg); }
+  .alert-purple { background: #f3eafb; border: 1px solid #d6c2ef; color: var(--accent-purple); }
+  .alert-icon { flex-shrink: 0; font-size: 16px; line-height: 1; margin-top: 1px; }
+  .alert-body strong { display: block; margin-bottom: 2px; }
+
+  /* Selected products strip */
+  .selected-products-strip {
+    background: var(--ink-50); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 18px;
+  }
+  .selected-products-strip .head {
+    font-size: 12px; color: var(--ink-600); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;
+  }
+  .chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 999px; padding: 4px 10px;
+    font-size: 12.5px; color: var(--ink-800); font-weight: 500;
+  }
+  .chip.more {
+    background: var(--primary-soft); color: var(--primary);
+    font-weight: 600; border-color: #c2dfe3;
+  }
+
+  .confirm-row {
+    display: flex; gap: 10px; padding: 12px 14px;
+    background: var(--ink-50); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-top: 14px;
+    cursor: pointer; align-items: flex-start;
+  }
+  .confirm-row .text { font-size: 13px; color: var(--ink-800); line-height: 1.5; }
+
+  /* Op toggle */
+  .op-toggle {
+    display: inline-flex; background: var(--ink-100);
+    padding: 3px; border-radius: 8px; margin-bottom: 10px;
+  }
+  .op-toggle button {
+    background: transparent; border: none; padding: 6px 16px;
+    font-size: 13px; font-weight: 600; color: var(--ink-600);
+    cursor: pointer; border-radius: 6px; font-family: var(--font);
+  }
+  .op-toggle button.active {
+    background: #fff; color: var(--primary); box-shadow: var(--shadow-sm);
+  }
+  .op-toggle button .tag {
+    margin-left: 6px; background: var(--ink-200);
+    padding: 1px 6px; border-radius: 4px; font-size: 10px;
+    color: var(--ink-600); font-weight: 700; letter-spacing: 0.3px;
+  }
+  .op-toggle button.active .tag { background: var(--primary-soft); color: var(--primary); }
+
+  /* Multi-org link panel */
+  .link-visualization {
+    background: linear-gradient(135deg, #faf6ff 0%, #f3eafb 100%);
+    border: 1px solid #d6c2ef;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin: 12px 0 18px;
+  }
+  .link-viz-title {
+    font-size: 12.5px; color: var(--accent-purple);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+  .link-diagram {
+    display: flex; align-items: center; justify-content: center; gap: 18px;
+  }
+  .link-product-node {
+    background: #fff; border: 2px solid var(--accent-purple);
+    border-radius: 8px; padding: 10px 14px;
+    font-weight: 600; font-size: 13px; color: var(--ink-900);
+    box-shadow: 0 4px 10px rgba(108,76,184,0.15);
+  }
+  .link-arrows {
+    display: flex; flex-direction: column; gap: 6px;
+    color: var(--accent-purple);
+  }
+  .link-orgs-stack { display: flex; flex-direction: column; gap: 6px; }
+  .link-org-node {
+    background: #fff; border: 1px solid #d6c2ef;
+    border-radius: 6px; padding: 6px 12px;
+    font-size: 12.5px; font-weight: 500; color: var(--ink-800);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .link-org-node .tiny-avatar {
+    width: 20px; height: 20px; border-radius: 4px;
+    background: linear-gradient(135deg, #6c4cb8, #8a6cd6);
+    color: #fff; font-size: 10px; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .link-org-node .tiny-avatar.b { background: linear-gradient(135deg, #1d7a8c, #2aa1ad); }
+  .link-org-node .tiny-avatar.c { background: linear-gradient(135deg, #e85d3a, #f08566); }
+  .primary-org-badge {
+    margin-left: auto;
+    background: var(--accent-purple); color: #fff;
+    padding: 1px 6px; border-radius: 3px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+  }
+
+  /* Success */
+  .success-screen { text-align: center; padding: 20px 0 8px; }
+  .success-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--success-bg); margin: 0 auto 16px;
+    display: grid; place-items: center;
+    color: var(--success-fg); font-size: 30px;
+  }
+  .success-icon.purple { background: #f3eafb; color: var(--accent-purple); }
+  .success-title { font-size: 22px; font-weight: 700; color: var(--ink-900); margin-bottom: 6px; }
+  .success-sub { color: var(--ink-600); margin-bottom: 22px; }
+  .success-recap {
+    text-align: left; background: var(--ink-50);
+    border-radius: var(--radius); padding: 16px 18px;
+    margin: 0 auto 18px; max-width: 500px;
+  }
+  .recap-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+  .recap-row .k { color: var(--ink-500); }
+  .recap-row .v { color: var(--ink-900); font-weight: 600; }
+
+  .undo-banner {
+    background: #fef9e8; border: 1px solid #f5e4a3;
+    border-radius: var(--radius); padding: 12px 14px;
+    margin-top: 14px; display: flex; align-items: center;
+    gap: 12px; color: #6e5418; font-size: 13px;
+  }
+  .undo-banner button {
+    margin-left: auto; background: transparent;
+    border: 1px solid #c9a93e; color: #6e5418;
+    padding: 5px 12px; border-radius: 4px;
+    cursor: pointer; font-weight: 600;
+    font-family: var(--font); font-size: 12.5px;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--ink-900); color: #fff;
+    padding: 12px 18px; border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    display: none; align-items: center; gap: 10px;
+    font-size: 13.5px; z-index: 300; max-width: 380px;
+  }
+  .toast.show { display: flex; animation: slideInRight 0.25s ease-out; }
+  @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast .icon-circle {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--success-fg); color: #fff;
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .toast.purple .icon-circle { background: var(--accent-purple); }
+
+  /* Tooltip on shared badge */
+  .tooltip {
+    position: absolute;
+    background: var(--ink-900);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    z-index: 150;
+    max-width: 240px;
+    box-shadow: var(--shadow-lg);
+    pointer-events: none;
+    display: none;
+  }
+  .tooltip.show { display: block; }
+  .tooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 16px;
+    border: 6px solid transparent;
+    border-bottom-color: var(--ink-900);
+    border-top: 0;
+  }
+  .tooltip-title {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+    color: #b9d0d6;
+  }
+
+  /* Comparison panel */
+  .comparison-panel {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    display: none;
+  }
+  .comparison-panel.show { display: block; }
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 12px;
+  }
+  .comparison-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    background: #fafbfc;
+  }
+  .comparison-card.move { border-top: 3px solid var(--primary); }
+  .comparison-card.link { border-top: 3px solid var(--accent-purple); }
+  .comparison-card h4 {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700;
+    color: var(--ink-900); margin-bottom: 4px;
+  }
+  .comparison-card h4 .ftag {
+    font-size: 10px; padding: 2px 7px; border-radius: 3px;
+    font-weight: 700; letter-spacing: 0.4px;
+  }
+  .comparison-card.move h4 .ftag { background: var(--primary-soft); color: var(--primary); }
+  .comparison-card.link h4 .ftag { background: #f0e9fb; color: var(--accent-purple); }
+  .comparison-card p { color: var(--ink-600); font-size: 12.5px; line-height: 1.6; margin-bottom: 8px; }
+  .comparison-card .ex { font-size: 12px; color: var(--ink-500); font-style: italic; }
+  .comparison-close {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--ink-500); font-size: 18px;
+    float: right; padding: 0 4px;
+  }
+  .comparison-title {
+    font-size: 14px; font-weight: 600; color: var(--ink-900);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .ic { display: inline-block; width: 16px; height: 16px; vertical-align: middle; }
+  svg.ic { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">Assent</div>
+      <button class="collapse-btn">
+        <svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <nav class="nav">
+      <a class="nav-item">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Home
+      </a>
+      <a class="nav-item active">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Product Catalog
+      </a>
+      <a class="nav-item">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+        My Network
+      </a>
+      <a class="nav-item">
+        <svg class="ic" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Sent Requests
+      </a>
+      <a class="nav-item">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Received Requests
+        <span class="badge">100</span>
+      </a>
+      <a class="nav-item nav-sub">Product Request (New) <span class="badge">100</span></a>
+      <a class="nav-item nav-sub">Product Request (Clas...) <span class="badge">100</span></a>
+      <a class="nav-item nav-sub">Company Requests <span class="badge">100</span></a>
+      <a class="nav-item nav-sub">Corrective Actions</a>
+      <a class="nav-item">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Request Manager
+      </a>
+      <a class="nav-item">
+        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Supplier Declaration
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="help-btn">?</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <select class="lang-select"><option>ENG</option></select>
+      <div class="avatar">S</div>
+    </div>
+
+    <div class="content">
+
+      <!-- Demo guide banner -->
+      <div class="demo-banner">
+        <span class="demo-banner-tag">DEMO GUIDE</span>
+        <span><strong>Both actions live in one catalog.</strong> Click a row's <strong>⋮</strong> menu — you'll see <em>Manage Organizations</em> (multi-org link) and <em>Reassociate</em> (move) sitting side by side.</span>
+        <div class="demo-actions">
+          <button class="demo-btn" onclick="showComparison()">Compare both flows</button>
+          <button class="demo-btn" onclick="simulateBulkReassociate()">Try Reassociate</button>
+          <button class="demo-btn" onclick="simulateBulkLink()">Try Multi-Org Link</button>
+        </div>
+      </div>
+
+      <!-- Comparison panel (hidden by default) -->
+      <div class="comparison-panel" id="comparisonPanel">
+        <button class="comparison-close" onclick="hideComparison()">×</button>
+        <div class="comparison-title">
+          <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          When to use which action
+        </div>
+        <div class="comparison-grid">
+          <div class="comparison-card move">
+            <h4>Reassociate <span class="ftag">MOVE</span></h4>
+            <p><strong>One-time correction or transfer.</strong> Product belongs to exactly one Organization at a time. Use when you need to fix a wrong association or move ownership.</p>
+            <p class="ex">"Product P1 is under O1 but should be under O2." Or "After M&A, all of NovaParts' products now belong to BoltLG Aerospace."</p>
+          </div>
+          <div class="comparison-card link">
+            <h4>Manage Organizations <span class="ftag">LINK</span></h4>
+            <p><strong>Ongoing shared ownership.</strong> Product genuinely belongs to multiple Organizations and should appear in all their catalogs. Updates sync across all linked Orgs.</p>
+            <p class="ex">"Liebherr's hydraulic pump is sold by both Construction Equipment and Mining Equipment — both teams need it in their catalog."</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page header -->
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Product Catalog</h1>
+          <div class="page-sub">Products you sell, distribute to customers or customers have requested</div>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-secondary">
+            <svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Product
+          </button>
+          <button class="btn btn-primary">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import Product
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter bar with Org context -->
+      <div class="filter-bar">
+        <div class="label">Filters:</div>
+        <div class="search-input">
+          <svg class="ic icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input placeholder="Search" />
+        </div>
+        <div class="filter-chip">
+          Declaration Requested
+          <svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown-chip">
+          All FMD Status
+          <svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="org-switcher">
+          <span class="org-switcher-label">Viewing:</span>
+          <div class="org-switcher-select">
+            <span>O1 — Construction Equipment</span>
+            <svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table card -->
+      <div class="table-card">
+
+        <div class="table-toolbar" id="stdToolbar">
+          <div class="toolbar-left">
+            <div class="toolbar-title">Products <span class="toolbar-count">(10)</span></div>
+            <span class="help-i">?</span>
+            <button class="btn btn-primary btn-sm">Declare Products</button>
+            <button class="kebab">
+              <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </div>
+          <button class="btn btn-ghost btn-sm">
+            Export
+            <svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+
+        <div class="selection-bar hidden" id="selectionBar">
+          <span><span class="count" id="selCount">0</span> selected</span>
+          <span class="divider">|</span>
+          <button class="selection-action" onclick="openReassociate('bulk')">
+            <svg class="ic" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Reassociate
+            <span class="new-pill">NEW</span>
+          </button>
+          <button class="selection-action" onclick="openMultiOrg('bulk')" style="color:var(--accent-purple);">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Manage Organizations
+            <span class="new-pill" style="background:var(--accent-purple);">NEW</span>
+          </button>
+          <button class="selection-action">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Add to Group
+          </button>
+          <div class="spacer"></div>
+          <button class="clear-link" onclick="clearSelection()">Clear selection</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px;"><span class="cb" id="selectAllCb" onclick="toggleAll()"></span></th>
+              <th>Product</th>
+              <th>Organizations</th>
+              <th>Declaration Requested</th>
+              <th>Declarations Provided</th>
+              <th>IMDS Status</th>
+              <th class="actions-cell">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+
+        <div class="pagination">
+          <div>1-10 of 100</div>
+          <div class="pager-controls">
+            <button class="pager-btn"><svg class="ic" viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg></button>
+            <button class="pager-btn"><svg class="ic" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+          </div>
+          <div>Page 1 of 10</div>
+          <div class="pager-controls">
+            <button class="pager-btn"><svg class="ic" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <button class="pager-btn"><svg class="ic" viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ROW ACTION MENU -->
+<div class="menu hidden" id="rowMenu">
+  <div class="menu-item">
+    <svg class="ic" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+    Edit Product
+  </div>
+  <div class="menu-item">
+    <svg class="ic" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/></svg>
+    View Declarations
+  </div>
+  <div class="menu-item">
+    <svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>
+    Distribution Settings
+  </div>
+  <div class="menu-divider"></div>
+  <div class="menu-section-label">Organization</div>
+  <div class="menu-item purple" onclick="openMultiOrg('single')">
+    <svg class="ic" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    Manage Organizations…
+    <span class="new-tag">NEW</span>
+  </div>
+  <div class="menu-item new" onclick="openReassociate('single')">
+    <svg class="ic" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+    Reassociate to Organization…
+    <span class="new-tag">NEW</span>
+  </div>
+  <div class="menu-divider"></div>
+  <div class="menu-item" style="color:#b53737;">
+    <svg class="ic" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+    Archive
+  </div>
+</div>
+
+<!-- ============ REASSOCIATE MODAL ============ -->
+<div class="overlay" id="reassociateModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title-row">
+          <div class="modal-title">Reassociate products</div>
+          <span class="flow-tag move">MOVE</span>
+        </div>
+        <div class="modal-sub">Move products from one Organization to another. The source Org will no longer own them.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('reassociateModal')">×</button>
+    </div>
+
+    <div class="modal-body" id="reModalBody">
+
+      <div class="stepper" id="reStepper">
+        <div class="step active" data-step="1"><span class="step-num">1</span> Choose destination</div>
+        <div class="step-line"></div>
+        <div class="step" data-step="2"><span class="step-num">2</span> Review changes</div>
+        <div class="step-line"></div>
+        <div class="step" data-step="3"><span class="step-num">3</span> Reason & confirm</div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="step-pane" id="rePane1">
+        <div class="op-toggle">
+          <button class="active" data-op="move" onclick="setReOp('move')">Move<span class="tag">RECOMMENDED</span></button>
+          <button data-op="copy" onclick="setReOp('copy')">Copy<span class="tag">BETA</span></button>
+        </div>
+        <div class="hint" style="color:var(--ink-500); font-size:12.5px; margin-bottom:14px;" id="reOpHint">
+          <strong>Move</strong> transfers products and their declarations from the source Organization to the destination. Source no longer owns them.
+        </div>
+
+        <div class="selected-products-strip">
+          <div class="head">Selected products (<span id="reSelectedCount">3</span>)</div>
+          <div class="chip-list" id="reSelectedChips"></div>
+        </div>
+
+        <div class="field">
+          <label>From Organization</label>
+          <div class="org-card disabled">
+            <div class="org-avatar">O1</div>
+            <div class="org-info">
+              <div class="org-name">O1 — Construction Equipment</div>
+              <div class="org-meta">Current owner • 47 products • Liebherr workspace</div>
+            </div>
+            <span class="org-current-tag">SOURCE</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>To Organization <span class="required">*</span></label>
+          <div class="hint">Select the Organization that should own these products. Only Organizations in this workspace are shown.</div>
+
+          <div class="search-input" style="flex:none; width:100%; margin-bottom:10px;">
+            <svg class="ic icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input placeholder="Search Organizations" />
+          </div>
+
+          <div class="org-card" onclick="selectReOrg(this,'O2')">
+            <div class="radio-circle"></div>
+            <div class="org-avatar b">O2</div>
+            <div class="org-info">
+              <div class="org-name">O2 — Mining Equipment</div>
+              <div class="org-meta">28 products • Mining & Heavy Machinery</div>
+            </div>
+          </div>
+          <div class="org-card" onclick="selectReOrg(this,'O3')">
+            <div class="radio-circle"></div>
+            <div class="org-avatar c">O3</div>
+            <div class="org-info">
+              <div class="org-name">O3 — Aerospace Division</div>
+              <div class="org-meta">12 products • Aerospace & Defense</div>
+            </div>
+          </div>
+          <div class="org-card" onclick="selectReOrg(this,'O4')">
+            <div class="radio-circle"></div>
+            <div class="org-avatar d">O4</div>
+            <div class="org-info">
+              <div class="org-name">O4 — NovaParts (Acquired)</div>
+              <div class="org-meta">Added via M&A • 3 products • Germany</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-pane hidden" id="rePane2">
+        <h3 style="font-size:15px; font-weight:600; color:var(--ink-900); margin-bottom:6px;">Pre-flight summary</h3>
+        <p style="color:var(--ink-600); font-size:13.5px; margin-bottom:14px;">
+          Review what will change before confirming. <strong>O2 — Mining Equipment</strong> will become the new owner.
+        </p>
+
+        <div class="summary-grid">
+          <div class="summary-tile move">
+            <div class="label">Products moving</div>
+            <div class="value" id="reSumProducts">3</div>
+            <div class="sub">From O1 → O2</div>
+          </div>
+          <div class="summary-tile good">
+            <div class="label">Declarations preserved</div>
+            <div class="value">87</div>
+            <div class="sub">All carried with products</div>
+          </div>
+          <div class="summary-tile good">
+            <div class="label">Customer mappings kept</div>
+            <div class="value">14</div>
+            <div class="sub">Across 6 customers</div>
+          </div>
+          <div class="summary-tile good">
+            <div class="label">Family relationships</div>
+            <div class="value">100%</div>
+            <div class="sub">Preserved as-is</div>
+          </div>
+        </div>
+
+        <div class="preserved-list">
+          <h4>
+            <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            What stays intact
+          </h4>
+          <ul>
+            <li>All declarations (REACH SVHC, RoHS, TSCA, Conflict Minerals, Prop 65, PFAS, FMD)</li>
+            <li>Product family relationships and parent/child structure</li>
+            <li>Customer part-number mappings — customers see no change</li>
+            <li>Complete audit and version history</li>
+            <li>ASM customer visibility for prior declarations</li>
+          </ul>
+        </div>
+
+        <div class="alert alert-purple" id="multiOrgReassociateNotice">
+          <span class="alert-icon">⚡</span>
+          <div class="alert-body">
+            <strong>1 selected product is linked to multiple Organizations</strong>
+            <strong>1256-6709-LM</strong> is currently linked to O1 and O3. Move will transfer ownership from O1 to O2 — the link to O3 remains intact. The product will continue to appear in O3's catalog.
+          </div>
+        </div>
+
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠</span>
+          <div class="alert-body">
+            <strong>1 in-flight request detected</strong>
+            Product <strong>4577-2345-KN</strong> has an open Conflict Minerals request. It will continue under the new Organization.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-pane hidden" id="rePane3">
+        <h3 style="font-size:15px; font-weight:600; color:var(--ink-900); margin-bottom:6px;">Reason for reassociation</h3>
+        <p style="color:var(--ink-600); font-size:13.5px; margin-bottom:18px;">
+          Recorded in the audit log for compliance and team visibility.
+        </p>
+
+        <div class="field">
+          <label>Reason <span class="required">*</span></label>
+          <select id="reReasonSelect">
+            <option value="">Select a reason…</option>
+            <option>Historical onboarding error</option>
+            <option>Merger / Acquisition</option>
+            <option>Divestiture</option>
+            <option>Internal reorganization</option>
+            <option>Data quality cleanup</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Note (optional)</label>
+          <textarea placeholder="Internal note for the audit log…"></textarea>
+        </div>
+
+        <div class="confirm-row" onclick="toggleReConfirm()">
+          <span class="cb" id="reConfirmCb"></span>
+          <div class="text">
+            I understand that <strong>3 products</strong> and their <strong>87 declarations</strong> will be moved to <strong>O2 — Mining Equipment</strong>. This can be reversed within <strong>7 days</strong> from the audit log.
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="step-pane hidden" id="rePaneSuccess">
+        <div class="success-screen">
+          <div class="success-icon">
+            <svg class="ic" viewBox="0 0 24 24" style="width:32px; height:32px;"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-title">Reassociation complete</div>
+          <div class="success-sub">3 products were moved to O2 — Mining Equipment.</div>
+
+          <div class="success-recap">
+            <div class="recap-row"><span class="k">Products moved</span><span class="v">3</span></div>
+            <div class="recap-row"><span class="k">Declarations preserved</span><span class="v">87</span></div>
+            <div class="recap-row"><span class="k">Reference ID</span><span class="v">RSA-2026-04217</span></div>
+          </div>
+
+          <div class="undo-banner">
+            <svg class="ic" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <div><strong>Undo within 7 days</strong> from the activity log.</div>
+            <button onclick="closeModalSuccess('reassociateModal')">Done</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-foot" id="reModalFoot">
+      <div class="foot-left" id="reFootLeft">Step 1 of 3</div>
+      <div class="foot-right">
+        <button class="btn btn-ghost" onclick="closeModal('reassociateModal')">Cancel</button>
+        <button class="btn btn-ghost hidden" id="reBackBtn" onclick="rePrevStep()">Back</button>
+        <button class="btn btn-primary" id="reNextBtn" onclick="reNextStep()" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MULTI-ORG MODAL ============ -->
+<div class="overlay" id="multiOrgModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title-row">
+          <div class="modal-title">Manage Organizations</div>
+          <span class="flow-tag link">LINK</span>
+        </div>
+        <div class="modal-sub">Link this product to multiple Organizations. It will appear in all their catalogs, and declaration updates will sync across all linked Orgs in near real-time.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('multiOrgModal')">×</button>
+    </div>
+
+    <div class="modal-body" id="moModalBody">
+
+      <div class="stepper" id="moStepper">
+        <div class="step active purple" data-step="1"><span class="step-num">1</span> Select Organizations</div>
+        <div class="step-line"></div>
+        <div class="step purple" data-step="2"><span class="step-num">2</span> Review & sync settings</div>
+        <div class="step-line"></div>
+        <div class="step purple" data-step="3"><span class="step-num">3</span> Confirm</div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="step-pane" id="moPane1">
+
+        <div class="selected-products-strip">
+          <div class="head">Product (<span id="moSelectedCount">1</span>)</div>
+          <div class="chip-list" id="moSelectedChips"></div>
+        </div>
+
+        <div class="link-visualization">
+          <div class="link-viz-title">Current associations</div>
+          <div class="link-diagram">
+            <div class="link-product-node" id="linkProductLabel">Hydraulic Pump HP-2400</div>
+            <div class="link-arrows">
+              <svg width="40" height="20" viewBox="0 0 40 20"><path d="M0 10 L34 10 M28 4 L34 10 L28 16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            </div>
+            <div class="link-orgs-stack" id="currentLinks">
+              <div class="link-org-node">
+                <div class="tiny-avatar">O1</div>
+                Construction Equipment
+                <span class="primary-org-badge">PRIMARY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Linked Organizations <span class="required">*</span></label>
+          <div class="hint">Select all Organizations this product belongs to. Declaration updates will sync across all linked Orgs.</div>
+
+          <div class="search-input" style="flex:none; width:100%; margin-bottom:10px;">
+            <svg class="ic icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input placeholder="Search Organizations" />
+          </div>
+
+          <div class="org-card linked" onclick="toggleMoOrg(this,'O1', true)">
+            <div class="cb-large checked locked"></div>
+            <div class="org-avatar">O1</div>
+            <div class="org-info">
+              <div class="org-name">O1 — Construction Equipment</div>
+              <div class="org-meta">Currently linked • Primary Organization</div>
+              <div class="org-lock-note">Cannot unlink the primary Organization from here</div>
+            </div>
+            <span class="org-current-tag purple">PRIMARY</span>
+          </div>
+
+          <div class="org-card" onclick="toggleMoOrg(this,'O2', false)">
+            <div class="cb-large"></div>
+            <div class="org-avatar b">O2</div>
+            <div class="org-info">
+              <div class="org-name">O2 — Mining Equipment</div>
+              <div class="org-meta">28 products • Mining & Heavy Machinery</div>
+            </div>
+          </div>
+
+          <div class="org-card" onclick="toggleMoOrg(this,'O3', false)">
+            <div class="cb-large"></div>
+            <div class="org-avatar c">O3</div>
+            <div class="org-info">
+              <div class="org-name">O3 — Aerospace Division</div>
+              <div class="org-meta">12 products • Aerospace & Defense</div>
+            </div>
+          </div>
+
+          <div class="org-card" onclick="toggleMoOrg(this,'O4', false)">
+            <div class="cb-large"></div>
+            <div class="org-avatar d">O4</div>
+            <div class="org-info">
+              <div class="org-name">O4 — NovaParts (Acquired)</div>
+              <div class="org-meta">Added via M&A • 3 products • Germany</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-purple">
+          <span class="alert-icon">⚡</span>
+          <div class="alert-body">
+            <strong>What "linking" means</strong>
+            The product appears in each linked Org's catalog as a single source of truth. Any new or revised declaration is reflected across all linked Orgs in near real-time. No data is duplicated.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-pane hidden" id="moPane2">
+        <h3 style="font-size:15px; font-weight:600; color:var(--ink-900); margin-bottom:6px;">Review associations & sync behaviour</h3>
+        <p style="color:var(--ink-600); font-size:13.5px; margin-bottom:14px;">
+          Confirm which Organizations this product will be linked to. Sync is automatic and near real-time.
+        </p>
+
+        <div class="summary-grid">
+          <div class="summary-tile link">
+            <div class="label">Organizations linked</div>
+            <div class="value" id="moSumOrgs">3</div>
+            <div class="sub">O1, O2, O3</div>
+          </div>
+          <div class="summary-tile good">
+            <div class="label">Declarations shared</div>
+            <div class="value">12</div>
+            <div class="sub">Synced to all linked Orgs</div>
+          </div>
+          <div class="summary-tile good">
+            <div class="label">Sync frequency</div>
+            <div class="value">~Real-time</div>
+            <div class="sub">Updates propagate in seconds</div>
+          </div>
+          <div class="summary-tile good">
+            <div class="label">Duplication avoided</div>
+            <div class="value">0</div>
+            <div class="sub">Single source of truth</div>
+          </div>
+        </div>
+
+        <div class="link-visualization">
+          <div class="link-viz-title">New association map</div>
+          <div class="link-diagram">
+            <div class="link-product-node">Hydraulic Pump HP-2400</div>
+            <div class="link-arrows">
+              <svg width="40" height="60" viewBox="0 0 40 60">
+                <path d="M0 30 L34 30 M28 24 L34 30 L28 36" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M0 30 Q 20 30 34 10 M30 14 L34 10 L34 16" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M0 30 Q 20 30 34 50 M30 46 L34 50 L34 44" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+            </div>
+            <div class="link-orgs-stack">
+              <div class="link-org-node">
+                <div class="tiny-avatar">O1</div>
+                Construction Equipment
+                <span class="primary-org-badge">PRIMARY</span>
+              </div>
+              <div class="link-org-node">
+                <div class="tiny-avatar b">O2</div>
+                Mining Equipment
+              </div>
+              <div class="link-org-node">
+                <div class="tiny-avatar c">O3</div>
+                Aerospace Division
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preserved-list">
+          <h4>
+            <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            What gets synced across all linked Organizations
+          </h4>
+          <ul>
+            <li>Product attributes (name, identifiers, descriptions)</li>
+            <li>Material composition data and FMD</li>
+            <li>Supplier declarations — new and updated</li>
+            <li>Compliance status changes (REACH SVHC, RoHS, TSCA, etc.)</li>
+            <li>Family relationships</li>
+          </ul>
+        </div>
+
+        <div class="alert alert-info">
+          <span class="alert-icon">ℹ</span>
+          <div class="alert-body">
+            <strong>Independent per Organization</strong>
+            Each linked Org keeps its own customer part-number mappings, distribution settings, and incoming requests. Only the product data itself is shared.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-pane hidden" id="moPane3">
+        <h3 style="font-size:15px; font-weight:600; color:var(--ink-900); margin-bottom:6px;">Confirm Organization links</h3>
+        <p style="color:var(--ink-600); font-size:13.5px; margin-bottom:18px;">
+          This product will be linked to 3 Organizations. You can unlink at any time from this same screen.
+        </p>
+
+        <div class="field">
+          <label>Reason for linking (optional)</label>
+          <div class="hint">Helps your team understand why this product is shared.</div>
+          <select>
+            <option value="">Select a reason…</option>
+            <option>Sold across multiple business units</option>
+            <option>Shared component across product lines</option>
+            <option>Cross-divisional manufacturing</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Note (optional)</label>
+          <textarea placeholder="e.g. Standard hydraulic pump used in both Construction and Mining flagship lines."></textarea>
+        </div>
+
+        <div class="confirm-row" onclick="toggleMoConfirm()">
+          <span class="cb" id="moConfirmCb"></span>
+          <div class="text">
+            I understand that this product will appear in the catalogs of <strong>O1, O2, and O3</strong>. Declaration updates will sync automatically across all three. I can unlink Organizations at any time.
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="step-pane hidden" id="moPaneSuccess">
+        <div class="success-screen">
+          <div class="success-icon purple">
+            <svg class="ic" viewBox="0 0 24 24" style="width:32px; height:32px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <div class="success-title">Product linked to 3 Organizations</div>
+          <div class="success-sub">Hydraulic Pump HP-2400 now appears in O1, O2, and O3 catalogs. Declaration sync is active.</div>
+
+          <div class="success-recap">
+            <div class="recap-row"><span class="k">Linked Organizations</span><span class="v">3</span></div>
+            <div class="recap-row"><span class="k">Declarations shared</span><span class="v">12</span></div>
+            <div class="recap-row"><span class="k">Sync status</span><span class="v" style="color:var(--success-fg);">● Active</span></div>
+            <div class="recap-row"><span class="k">Reference ID</span><span class="v">LNK-2026-00891</span></div>
+          </div>
+
+          <button class="btn btn-primary" onclick="closeModalSuccess('multiOrgModal')">Done</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-foot" id="moModalFoot">
+      <div class="foot-left" id="moFootLeft">Step 1 of 3</div>
+      <div class="foot-right">
+        <button class="btn btn-ghost" onclick="closeModal('multiOrgModal')">Cancel</button>
+        <button class="btn btn-ghost hidden" id="moBackBtn" onclick="moPrevStep()">Back</button>
+        <button class="btn btn-primary" id="moNextBtn" onclick="moNextStep()" disabled style="background:var(--accent-purple);">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="icon-circle">✓</div>
+  <div id="toastMsg">Action completed</div>
+</div>
+
+<script>
+  // ========== DATA ==========
+  // Note: some products are linked to multiple orgs (shared) — marked with `linkedOrgs`
+  const products = [
+    { id: '1866-2296-ND', name: 'Steel Frame Assembly', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: ['EU REACH SVHC', '+2'], openReqs: 13, provided: [], imds: 'Not Submitted' },
+    { id: '5678-7484-mn', name: 'Hydraulic Cylinder 200mm', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: ['EU ROHS Directive', '+3'], openReqs: 42, provided: ['PFAS Identification'], imds: 'Not Submitted' },
+    { id: '3456-2343-HM', name: 'Hydraulic Pump HP-2400', org: 'Construction Equipment', linkedOrgs: ['O1','O2','O3'], group: 'Group 1', req: ['TSCA'], openReqs: 3, provided: ['EU REACH SVHC', '+2'], imds: 'Not Submitted', isShared: true },
+    { id: '4577-2345-KN', name: 'Excavator Track Pad', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: ['Conflict Minerals'], openReqs: 1, provided: ['Full Material Disclosure', '+2'], imds: 'Not Submitted' },
+    { id: '3453-3455-KL', name: 'Cab Door Panel', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: ['CA Prop65', '+1'], openReqs: 16, provided: ['EU REACH SVHC'], imds: 'Not Submitted' },
+    { id: 'FGHK-ETKM-PL', name: 'Engine Mount Bracket', org: 'Construction Equipment', linkedOrgs: ['O1','O2'], group: 'Group 1', req: ['Prop65', '+2'], openReqs: 18, provided: ['RM - Conflict Minerals', '+2'], imds: 'Not Submitted', isShared: true },
+    { id: '1256-6709-LM', name: 'Diesel Engine D-936', org: 'Construction Equipment', linkedOrgs: ['O1','O3'], group: 'Group 1', req: ['EU REACH SVHC'], openReqs: 23, provided: ['EU REACH SVHC', '+2'], imds: 'Not Submitted', isShared: true },
+    { id: '4578-3345-OL', name: 'Wheel Bearing Set', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: ['EU REACH SVHC'], openReqs: 43, provided: ['TSCA Restrictions'], imds: 'Not Submitted' },
+    { id: '2356-6780-LK', name: 'Control Valve V-12', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: [], openReqs: 0, provided: ['EU REACH SVHC', '+2'], imds: 'Not Submitted' },
+    { id: '7890-1234-QR', name: 'Operator Display Module', org: 'Construction Equipment', linkedOrgs: ['O1'], group: 'Group 1', req: ['EU REACH SVHC', '+1'], openReqs: 9, provided: [], imds: 'Not Submitted' },
+  ];
+
+  const orgNames = {
+    O1: 'Construction Equipment',
+    O2: 'Mining Equipment',
+    O3: 'Aerospace Division',
+    O4: 'NovaParts (Acquired)'
+  };
+
+  const selected = new Set();
+  let activeProductForMenu = null;
+
+  // ========== RENDER TABLE ==========
+  function renderTable() {
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = products.map((p) => {
+      const isSel = selected.has(p.id);
+      const orgPillsHtml = p.linkedOrgs.map((o, i) => `
+        <span class="org-pill ${i === 0 ? 'primary' : ''}">${o} — ${orgNames[o].split(' ')[0]}</span>
+      `).join('');
+      const sharedBadge = p.isShared ? `
+        <span class="shared-badge" onmouseenter="showSharedTooltip(event, '${p.id}')" onmouseleave="hideTooltip()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          ${p.linkedOrgs.length} orgs
+        </span>` : '';
+      return `
+        <tr class="${isSel ? 'selected' : ''}">
+          <td><span class="cb ${isSel ? 'checked' : ''}" onclick="toggleRow('${p.id}')"></span></td>
+          <td>
+            <a href="#" class="product-id">${p.id} ${sharedBadge}</a>
+            <div class="product-sub">${p.name}</div>
+          </td>
+          <td><div class="org-pills">${orgPillsHtml}</div></td>
+          <td>
+            ${p.req.length ? `<div>${p.req.map((r,i) => i===0 ? `<span class="pill">${r}</span>` : `<span class="pill pill-counter">${r}</span>`).join(' ')}</div>` : ''}
+            ${p.openReqs > 0 ? `<span class="open-reqs">${p.openReqs} Open request${p.openReqs > 1 ? 's' : ''}</span>` : ''}
+          </td>
+          <td>${p.provided.length ? p.provided.map((r,i) => i===0 ? `<span class="pill">${r}</span>` : `<span class="pill pill-counter">${r}</span>`).join(' ') : ''}</td>
+          <td><span class="pill">${p.imds}</span></td>
+          <td class="actions-cell">
+            <button class="action-btn" onclick="openRowMenu(event,'${p.id}')">
+              <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    updateSelectionUI();
+  }
+
+  function toggleRow(id) {
+    if (selected.has(id)) selected.delete(id); else selected.add(id);
+    renderTable();
+  }
+
+  function toggleAll() {
+    if (selected.size === products.length) selected.clear();
+    else products.forEach(p => selected.add(p.id));
+    renderTable();
+  }
+
+  function updateSelectionUI() {
+    const bar = document.getElementById('selectionBar');
+    const std = document.getElementById('stdToolbar');
+    const all = document.getElementById('selectAllCb');
+    const count = document.getElementById('selCount');
+    count.textContent = selected.size;
+    if (selected.size === 0) {
+      bar.classList.add('hidden');
+      std.classList.remove('hidden');
+      all.classList.remove('checked', 'indeterminate');
+    } else {
+      bar.classList.remove('hidden');
+      std.classList.add('hidden');
+      if (selected.size === products.length) {
+        all.classList.add('checked');
+        all.classList.remove('indeterminate');
+      } else {
+        all.classList.add('indeterminate');
+        all.classList.remove('checked');
+      }
+    }
+  }
+
+  function clearSelection() { selected.clear(); renderTable(); }
+
+  // ========== TOOLTIP ==========
+  function showSharedTooltip(e, id) {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    const t = document.getElementById('tooltip');
+    const orgList = p.linkedOrgs.map(o => `${o} — ${orgNames[o]}`).join('<br>');
+    t.innerHTML = `<div class="tooltip-title">Linked to ${p.linkedOrgs.length} Organizations</div>${orgList}`;
+    const rect = e.currentTarget.getBoundingClientRect();
+    t.style.left = (rect.left + window.scrollX) + 'px';
+    t.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+    t.classList.add('show');
+  }
+  function hideTooltip() { document.getElementById('tooltip').classList.remove('show'); }
+
+  // ========== ROW MENU ==========
+  function openRowMenu(e, id) {
+    e.stopPropagation();
+    const menu = document.getElementById('rowMenu');
+    const rect = e.currentTarget.getBoundingClientRect();
+    menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+    menu.style.left = (rect.right - 260 + window.scrollX) + 'px';
+    menu.classList.remove('hidden');
+    activeProductForMenu = id;
+  }
+  function closeRowMenu() { document.getElementById('rowMenu').classList.add('hidden'); }
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('rowMenu');
+    if (!menu.contains(e.target) && !e.target.closest('.action-btn')) closeRowMenu();
+  });
+
+  // ========== COMPARISON PANEL ==========
+  function showComparison() {
+    document.getElementById('comparisonPanel').classList.add('show');
+    document.getElementById('comparisonPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function hideComparison() {
+    document.getElementById('comparisonPanel').classList.remove('show');
+  }
+
+  // ========== REASSOCIATE FLOW ==========
+  let reStep = 1, reDestOrg = null, reConfirmed = false, reOp = 'move';
+
+  function openReassociate(mode) {
+    closeRowMenu();
+    if (mode === 'single' && activeProductForMenu) {
+      selected.clear();
+      selected.add(activeProductForMenu);
+      renderTable();
+    } else if (mode === 'bulk' && selected.size === 0) {
+      // Pre-select 3 if nothing selected
+      selected.add('1866-2296-ND');
+      selected.add('4577-2345-KN');
+      selected.add('3456-2343-HM');
+      renderTable();
+    }
+    resetReWizard();
+    document.getElementById('reassociateModal').classList.add('show');
+  }
+
+  function resetReWizard() {
+    reStep = 1; reDestOrg = null; reConfirmed = false; reOp = 'move';
+    document.getElementById('reConfirmCb').classList.remove('checked');
+    document.querySelectorAll('#rePane1 .org-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('reReasonSelect').value = '';
+    document.querySelectorAll('.op-toggle button').forEach(b => b.classList.toggle('active', b.dataset.op === 'move'));
+    renderReChips();
+    goToReStep(1);
+  }
+
+  function renderReChips() {
+    const ids = Array.from(selected);
+    document.getElementById('reSelectedCount').textContent = ids.length;
+    document.getElementById('reSumProducts').textContent = ids.length;
+    const max = 8;
+    let html = ids.slice(0, max).map(id => `<span class="chip">${id}</span>`).join('');
+    if (ids.length > max) html += `<span class="chip more">+${ids.length - max} more</span>`;
+    document.getElementById('reSelectedChips').innerHTML = html;
+  }
+
+  function selectReOrg(card, id) {
+    document.querySelectorAll('#rePane1 .org-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    reDestOrg = id;
+    updateReNext();
+  }
+
+  function setReOp(op) {
+    reOp = op;
+    document.querySelectorAll('.op-toggle button').forEach(b => b.classList.toggle('active', b.dataset.op === op));
+    document.getElementById('reOpHint').innerHTML = op === 'move'
+      ? `<strong>Move</strong> transfers products and their declarations from the source Organization to the destination. Source no longer owns them.`
+      : `<strong>Copy</strong> duplicates products into the destination Organization. Original products stay where they are.`;
+  }
+
+  function goToReStep(n) {
+    reStep = n;
+    ['rePane1','rePane2','rePane3','rePaneSuccess'].forEach(p => document.getElementById(p).classList.add('hidden'));
+    if (n === 1) document.getElementById('rePane1').classList.remove('hidden');
+    if (n === 2) document.getElementById('rePane2').classList.remove('hidden');
+    if (n === 3) document.getElementById('rePane3').classList.remove('hidden');
+    if (n === 4) {
+      document.getElementById('rePaneSuccess').classList.remove('hidden');
+      document.getElementById('reStepper').classList.add('hidden');
+      document.getElementById('reModalFoot').classList.add('hidden');
+      return;
+    } else {
+      document.getElementById('reStepper').classList.remove('hidden');
+      document.getElementById('reModalFoot').classList.remove('hidden');
+    }
+    document.querySelectorAll('#reStepper .step').forEach(s => {
+      const step = parseInt(s.dataset.step);
+      s.classList.toggle('active', step === n);
+      s.classList.toggle('done', step < n);
+    });
+    document.querySelectorAll('#reStepper .step-line').forEach((l, i) => l.classList.toggle('done', i < n - 1));
+    document.getElementById('reFootLeft').textContent = `Step ${n} of 3`;
+    document.getElementById('reBackBtn').classList.toggle('hidden', n === 1);
+    document.getElementById('reNextBtn').textContent = n === 3 ? 'Confirm reassociation' : 'Continue';
+    updateReNext();
+  }
+
+  function updateReNext() {
+    const btn = document.getElementById('reNextBtn');
+    if (reStep === 1) btn.disabled = !reDestOrg;
+    else if (reStep === 2) btn.disabled = false;
+    else if (reStep === 3) {
+      const reasonOk = !!document.getElementById('reReasonSelect').value;
+      btn.disabled = !(reasonOk && reConfirmed);
+    }
+  }
+
+  function reNextStep() {
+    if (reStep < 3) goToReStep(reStep + 1);
+    else completeReassociate();
+  }
+  function rePrevStep() { if (reStep > 1) goToReStep(reStep - 1); }
+  function toggleReConfirm() {
+    reConfirmed = !reConfirmed;
+    document.getElementById('reConfirmCb').classList.toggle('checked', reConfirmed);
+    updateReNext();
+  }
+  document.getElementById('reReasonSelect').addEventListener('change', updateReNext);
+
+  function completeReassociate() {
+    goToReStep(4);
+    // Reflect in table: remove moved products from O1 (since this is O1's view)
+    setTimeout(() => {
+      const ids = Array.from(selected);
+      for (let i = products.length - 1; i >= 0; i--) {
+        if (ids.includes(products[i].id) && !products[i].isShared) {
+          products.splice(i, 1);
+        } else if (ids.includes(products[i].id) && products[i].isShared) {
+          // Remove O1 from linkedOrgs, add destination
+          products[i].linkedOrgs = products[i].linkedOrgs.filter(o => o !== 'O1');
+          // If still linked to O1 conceptually... actually for prototype just remove from view
+          products.splice(i, 1);
+        }
+      }
+    }, 100);
+  }
+
+  // ========== MULTI-ORG FLOW ==========
+  let moStep = 1, moSelectedOrgs = new Set(['O1']), moConfirmed = false;
+
+  function openMultiOrg(mode) {
+    closeRowMenu();
+    if (mode === 'single' && activeProductForMenu) {
+      selected.clear();
+      selected.add(activeProductForMenu);
+      renderTable();
+    } else if (mode === 'bulk' && selected.size === 0) {
+      selected.add('3456-2343-HM');
+      renderTable();
+    }
+    resetMoWizard();
+    document.getElementById('multiOrgModal').classList.add('show');
+  }
+
+  function resetMoWizard() {
+    moStep = 1; moSelectedOrgs = new Set(['O1']); moConfirmed = false;
+    document.getElementById('moConfirmCb').classList.remove('checked');
+    document.querySelectorAll('#moPane1 .cb-large:not(.locked)').forEach(cb => cb.classList.remove('checked'));
+    renderMoChips();
+    updateLinkViz();
+    goToMoStep(1);
+  }
+
+  function renderMoChips() {
+    const ids = Array.from(selected);
+    document.getElementById('moSelectedCount').textContent = ids.length;
+    const chips = ids.map(id => {
+      const p = products.find(x => x.id === id);
+      return `<span class="chip">${id}${p ? ' — ' + p.name : ''}</span>`;
+    }).join('');
+    document.getElementById('moSelectedChips').innerHTML = chips;
+    // Update product label in viz
+    if (ids.length === 1) {
+      const p = products.find(x => x.id === ids[0]);
+      document.getElementById('linkProductLabel').textContent = p ? p.name : ids[0];
+    } else if (ids.length > 1) {
+      document.getElementById('linkProductLabel').textContent = `${ids.length} products`;
+    }
+  }
+
+  function toggleMoOrg(card, orgId, isLocked) {
+    if (isLocked) return; // can't toggle primary
+    const cb = card.querySelector('.cb-large');
+    if (moSelectedOrgs.has(orgId)) {
+      moSelectedOrgs.delete(orgId);
+      cb.classList.remove('checked');
+      card.classList.remove('selected', 'purple');
+    } else {
+      moSelectedOrgs.add(orgId);
+      cb.classList.add('checked');
+      card.classList.add('selected', 'purple');
+    }
+    updateMoSummary();
+    updateMoNext();
+  }
+
+  function updateLinkViz() {
+    // visual sync — keep simple for prototype
+  }
+
+  function updateMoSummary() {
+    document.getElementById('moSumOrgs').textContent = moSelectedOrgs.size;
+  }
+
+  function goToMoStep(n) {
+    moStep = n;
+    ['moPane1','moPane2','moPane3','moPaneSuccess'].forEach(p => document.getElementById(p).classList.add('hidden'));
+    if (n === 1) document.getElementById('moPane1').classList.remove('hidden');
+    if (n === 2) document.getElementById('moPane2').classList.remove('hidden');
+    if (n === 3) document.getElementById('moPane3').classList.remove('hidden');
+    if (n === 4) {
+      document.getElementById('moPaneSuccess').classList.remove('hidden');
+      document.getElementById('moStepper').classList.add('hidden');
+      document.getElementById('moModalFoot').classList.add('hidden');
+      return;
+    } else {
+      document.getElementById('moStepper').classList.remove('hidden');
+      document.getElementById('moModalFoot').classList.remove('hidden');
+    }
+    document.querySelectorAll('#moStepper .step').forEach(s => {
+      const step = parseInt(s.dataset.step);
+      s.classList.toggle('active', step === n);
+      s.classList.toggle('done', step < n);
+    });
+    document.querySelectorAll('#moStepper .step-line').forEach((l, i) => l.classList.toggle('done', i < n - 1));
+    document.getElementById('moFootLeft').textContent = `Step ${n} of 3`;
+    document.getElementById('moBackBtn').classList.toggle('hidden', n === 1);
+    document.getElementById('moNextBtn').textContent = n === 3 ? 'Confirm links' : 'Continue';
+    updateMoNext();
+  }
+
+  function updateMoNext() {
+    const btn = document.getElementById('moNextBtn');
+    if (moStep === 1) btn.disabled = moSelectedOrgs.size < 2;
+    else if (moStep === 2) btn.disabled = false;
+    else if (moStep === 3) btn.disabled = !moConfirmed;
+  }
+
+  function moNextStep() {
+    if (moStep < 3) goToMoStep(moStep + 1);
+    else completeMultiOrg();
+  }
+  function moPrevStep() { if (moStep > 1) goToMoStep(moStep - 1); }
+  function toggleMoConfirm() {
+    moConfirmed = !moConfirmed;
+    document.getElementById('moConfirmCb').classList.toggle('checked', moConfirmed);
+    updateMoNext();
+  }
+
+  function completeMultiOrg() {
+    goToMoStep(4);
+    // Reflect in table: mark selected products as multi-linked
+    setTimeout(() => {
+      const ids = Array.from(selected);
+      ids.forEach(id => {
+        const p = products.find(x => x.id === id);
+        if (p) {
+          p.linkedOrgs = Array.from(moSelectedOrgs);
+          p.isShared = p.linkedOrgs.length > 1;
+        }
+      });
+      renderTable();
+    }, 100);
+  }
+
+  // ========== UTILITY ==========
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+  }
+  function closeModalSuccess(id) {
+    closeModal(id);
+    if (id === 'reassociateModal') {
+      showToast('3 products moved to Mining Equipment', 'move');
+    } else {
+      showToast('Product linked to 3 Organizations', 'link');
+    }
+    selected.clear();
+    renderTable();
+  }
+
+  function showToast(msg, flavor) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.toggle('purple', flavor === 'link');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // Demo helpers
+  function simulateBulkReassociate() {
+    selected.clear();
+    selected.add('1866-2296-ND');
+    selected.add('4577-2345-KN');
+    selected.add('3456-2343-HM');
+    renderTable();
+    setTimeout(() => openReassociate('bulk'), 200);
+  }
+  function simulateBulkLink() {
+    selected.clear();
+    selected.add('5678-7484-mn');
+    renderTable();
+    setTimeout(() => openMultiOrg('single'), 200);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal('reassociateModal');
+      closeModal('multiOrgModal');
+    }
+  });
+
+  // Init
+  renderTable();
+</script>
+</body>
+</html>

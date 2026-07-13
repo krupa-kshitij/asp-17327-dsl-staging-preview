@@ -1,0 +1,23 @@
+{
+  "apps": [
+    {
+      "name": "Assent Prototype",
+      "url": "apps/assent-prototype/"
+    },
+    {
+      "name": "Dsl Builder Primeng Prototype",
+      "url": "apps/dsl-builder-primeng-prototype/"
+    }
+  ],
+  "pages": [
+    {
+      "name": "Dsl Builder Stakeholder Demo",
+      "url": "html/dsl-builder-stakeholder-demo.html"
+    },
+    {
+      "name": "Unified Prototype",
+      "url": "html/unified-prototype.html"
+    }
+  ],
+  "resources": []
+}
